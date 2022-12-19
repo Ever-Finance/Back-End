@@ -5,7 +5,7 @@ pragma solidity ^0.8.7;
 contract EFTStaking {
     // Tipo de dados para representar uma entrada de stake de um usuário
     struct Stake {
-        address owner; // endereço do proprietário do stake
+        address payable owner; // endereço do proprietário do stake
         uint256 amount; // quantidade de tokens EFT em stake
         uint256 lastClaimTime; // último momento em que o usuário reclamou seus tokens TBNB
     }
@@ -30,12 +30,12 @@ contract EFTStaking {
 
     // Adiciona um novo stake de tokens EFT
     function stake(uint256 amount) public payable {
-        require(msg.value == amount, "O valor enviado deve ser igual aa quantidade de tokens EFT em stake");
+        require(msg.value == amount, "O valor enviado deve ser igual a quantidade de tokens EFT em stake");
 
         // Atualiza a entrada de stake do usuário
         Stake storage stake = stakes[msg.sender];
         stake.amount += amount;
-        stake.lastClaimTime = now;
+        stake.lastClaimTime = block.timestamp;
 
         // Atualiza a quantidade total de tokens EFT em stake
         totalStakedAmount += amount;
@@ -64,22 +64,24 @@ contract EFTStaking {
 
     // Reclama os tokens TBNB que o usuário tem direito com base em seu stake de tokens EFT
     function claim() public {
-    Stake storage stake = stakes[msg.sender];
-    require(stake.amount > 0, "Voce nao tem tokens EFT em stake");
+        // Recupera a entrada de stake do usuário
+        Stake storage stake = stakes[msg.sender];
+        // Verifica se o usuário possui tokens EFT em stake
+        require(stake.amount > 0, "Voce nao tem tokens EFT em stake");
 
-    // Calcula a quantidade de tokens TBNB a ser distribuída para o usuário com base em sua participação no staking
-    uint256 tokensToClaim = stake.amount * totalTBNBAmount / totalStakedAmount;
+        // Calcula a quantidade de tokens TBNB a ser distribuída para o usuário com base em sua participação no staking
+        uint256 tokensToClaim = stake.amount * totalTBNBAmount / totalStakedAmount;
 
-    // Atualiza a última vez que o usuário reclamou tokens TBNB
-    stake.lastClaimTime = now;
+        // Atualiza a última vez que o usuário reclamou tokens TBNB
+        stake.lastClaimTime = now;
 
-    // Atualiza a quantidade total de tokens TBNB disponíveis
-    totalTBNBAmount -= tokensToClaim;
+        // Atualiza a quantidade total de tokens TBNB disponíveis
+        totalTBNBAmount -= tokensToClaim;
 
-    // Dispara o evento TBNBDistributed
-    emit TBNBDistributed(msg.sender, tokensToClaim);
+        // Dispara o evento TBNBDistributed
+        emit TBNBDistributed(msg.sender, tokensToClaim);
 
-    // Envia os tokens TBNB para o usuário
-    msg.sender.transfer(tokensToClaim);
+        // Envia os tokens TBNB para o usuário
+        msg.sender.transfer(tokensToClaim);
     }
 }
