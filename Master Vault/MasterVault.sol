@@ -63,7 +63,7 @@ contract EFTStaking {
     }
 
     // Reclama os tokens TBNB que o usuário tem direito com base em seu stake de tokens EFT
-function claim() public {
+    function claim() public {
     Stake storage stake = stakes[msg.sender];
     require(stake.amount > 0, "Voce nao tem tokens EFT em stake");
 
@@ -81,4 +81,5 @@ function claim() public {
 
     // Envia os tokens TBNB para o usuário
     msg.sender.transfer(tokensToClaim);
+    }
 }
