@@ -23,7 +23,7 @@ contract EFTStaking {
 
     // Construtor
     constructor(address _platformTokenAddress) public {
-        platformTokenAddress = _platformTokenAddress;
+        platformTokenAddress = 0xa2198Ec5E96E918C251bdD298cC337C5F799833e;
     }
 
     // Essa função tem o objetivo de adicionar tokens em stake
